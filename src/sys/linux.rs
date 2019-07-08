@@ -23,5 +23,5 @@ pub const CTL_SUNRPC: libc::c_int = 7249; // sunrpc debug
 pub const CTL_PM: libc::c_int = 9899; // frv power management
 pub const CTL_FRV: libc::c_int = 9898; // frv specific sysctls
 
-// TODO: 
-// 
+// TODO:
+//
