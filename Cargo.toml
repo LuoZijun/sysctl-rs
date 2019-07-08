@@ -14,13 +14,15 @@ repository = "https://github.com/johalun/sysctl-rs"
 documentation = "https://johalun.github.io/sysctl-rs/index.html"
 edition = "2018"
 
-[dependencies]
-failure   = "^0.1"
 
-[target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
+
+[dependencies]
 libc      = "^0.2.34"
-byteorder = "^1.0.0"
-bitflags  = "^1.0"
+# failure   = "^0.1"
+
+# [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
+# byteorder = "^1.0.0"
+# bitflags  = "^1.0"
 
 [features]
 default = [ ]

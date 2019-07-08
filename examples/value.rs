@@ -2,28 +2,41 @@ extern crate sysctl;
 
 use std::io;
 
-fn main() {
-    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
-    const KEY: &str = "net.inet.ip.forwarding";
-    #[cfg(any(target_os = "android", target_os = "linux"))]
-    const KEY: &str = "/proc/sys/net/ipv4/ip_forward";
+fn main() -> Result<(), io::Error> {
+    // net.inet.ip.forwarding
+    // kern.ostype
+    // let root = "kern".parse::<sysctl::Mib>()?;
+    let root = sysctl::Mib::default();
+    for mib_res in root {
+        let mib = mib_res?;
+        let name = mib.name()?;
 
-    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
-    let ret = sysctl::value(KEY)
-        .map(|v| v == sysctl::CtlValue::Int(1))
-        .map_err(|_| io::Error::last_os_error());
-
-    #[cfg(any(target_os = "android", target_os = "linux"))]
-    let ret = sysctl::value(KEY)
-        .map(|v| v == sysctl::CtlValue::String("1\n".to_string()))
-        .map_err(|_| io::Error::last_os_error());
-
-    match ret {
-        Ok(val) => {
-            println!("The `{}` value is: {}", KEY, val);
-        }
-        Err(e) => {
-            println!("ERROR: {:?}", e);
+        match mib.metadata() {
+            Ok(metadata) => {
+                if metadata.is_struct() {
+                    match mib.value() {
+                        Ok(value) => {
+                            if value.size() > 20 {
+                                println!("{} = ...", name);
+                            } else {
+                                println!("{} = {:?}", name, value);
+                            }
+                        }
+                        Err(e) => {
+                            println!("{} = {}", name, e);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                if e.kind() == std::io::ErrorKind::NotFound {
+                    // PASS
+                } else {
+                    println!("{}", name);
+                }
+            }
         }
     }
+
+    Ok(())
 }
